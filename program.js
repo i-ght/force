@@ -2,7 +2,7 @@
 **********************************************************************
 ** 2023 February 15
 ** The author disclaims copyright to this source code.  In place of
-** a legal notice, here is a song:
+** a legal notice, here is a hymn:
 **
 ** O Kali, Thou art fond of cremation grounds;
 ** so I have turned my heart into one
