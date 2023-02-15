@@ -17,6 +17,10 @@ class Force {
     this.domain = domain;
     this.momentum = momentum;
   }
+
+  reconstruct() { 
+    throw new TypeError("needs definition.");
+  }
   
   advance() {
     this.domain.add(this.momentum);
@@ -96,8 +100,6 @@ class TwoDBouncyBall extends Force {
 
 }
 
-const X = 0;
-const Y = 1;
 const BALLZ = 2;
 const PHI = 1.618;
 
@@ -142,6 +144,6 @@ function draw() {
   background(0);
   for (let i = 0; i < BALLZ; i++) {
     let bouncyBall = bouncyBalls[i]; 
-    bouncyBall.reconstruct(99);
+    bouncyBall.reconstruct();
   }
 }
