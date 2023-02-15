@@ -1,9 +1,16 @@
-const XAndOrY = 
+const OptionOfXAndOrY = 
   Object.freeze({
     NONE:  0,
     X:     1,
     Y:     2
   });
+
+class Bounds {
+  static notOut(a) { return a === OptionOfXAndOrY.NONE; }
+  static outX(a) { return a & OptionOfXAndOrY.X; }
+  static outY(a) { return a & OptionOfXAndOrY.Y; }
+  static outXY(a) { return a & OptionOfXAndOrY.X && a & OptionOfXAndOrY.Y; }
+}
 
 class Force {
   constructor(domain, momentum) {
@@ -14,11 +21,15 @@ class Force {
   advance() {
     this.domain.add(this.momentum);
   }
+
+  changeDir(dir) {
+    this.momentum.mult(dir);  
+  }
   
   outOfBounds() {
     let x = false;
     let y = false;
-    
+
     if (this.domain.x > width || this.domain.x < 0) {
       x = true;
     }
@@ -28,65 +39,109 @@ class Force {
     }
     
     if (x && y)  {
-      return XAndOrY.X | XAndOrY.Y;
+      return OptionOfXAndOrY.X | OptionOfXAndOrY.Y;
     }
     else if (x && !y) {
-      return XAndOrY.X;
+      return OptionOfXAndOrY.X;
     }
     else if (y && !x) {
-      return XAndOrY.Y;
+      return OptionOfXAndOrY.Y;
     } /*else {*/
       
-    return XAndOrY.NONE;
+    return OptionOfXAndOrY.NONE;
     
     /*}*/
   }
 }
 
-class BouncyBall extends Force {
-  
+function cV(x, y, z) {
+  return createVector(x, y, z);
+}
+
+let DIR_CHANGES; 
+
+class TwoDBouncyBall extends Force {
+
+  constructor(domain, momentum, diameter) {
+    super(domain, momentum);
+    this.diameter = diameter;
+  }
+
+  reconstruct() {
+    const mymy = this;
+    mymy.advance();
+    let xyOrNone = mymy.outOfBounds();
+
+    if (Bounds.outXY(xyOrNone)) {
+        console.log("XY");
+        mymy.changeDir(
+          DIR_CHANGES[OptionOfXAndOrY.X | OptionOfXAndOrY.Y]
+        );  
+    } else if (Bounds.outY(xyOrNone)) {
+      mymy.changeDir(
+          DIR_CHANGES[OptionOfXAndOrY.Y]
+      );
+    } else if (Bounds.outX(xyOrNone)) {
+      mymy.changeDir(
+          DIR_CHANGES[OptionOfXAndOrY.X]
+      );
+    }
+
+    circle(
+      mymy.domain.x,
+      mymy.domain.y,
+      mymy.diameter
+    );
+  }
+
 }
 
 const X = 0;
 const Y = 1;
+const BALLZ = 2;
+const PHI = 1.618;
 
-let bouncyBall;
+let bouncyBalls = [];
 
-function constructBouncyBall() {
+function constructSpeedyBouncyBall(domain) {
+  const momentum =
+    cV(
+      PHI * 2.3,
+      PHI * 1.9
+    );
   
-  const domainXY = [1.1618, 1];
-  const domain = createVector(domainXY[X], domainXY[Y]);
-  
-  const momentumXY = [1.618 * 3, 3];
-  const momentum = createVector(momentumXY[X], momentumXY[Y]);
-  
-  return new BouncyBall(
+  return new TwoDBouncyBall(
       domain,
-      momentum
+      momentum,
+      66.6
   );
 }
 
 function setup() {
-  createCanvas(333, 333);
-  stroke(255, 0, 255);
-  bouncyBall = constructBouncyBall();
+  DIR_CHANGES = 
+    Object.freeze({
+      [OptionOfXAndOrY.X]: cV(-1, 1),
+      [OptionOfXAndOrY.Y]: cV(1, -1),
+      [OptionOfXAndOrY.X | OptionOfXAndOrY.Y]: cV(-1, -1)
+    });
+    
+  createCanvas(333 * PHI, 333);
+  stroke(155, 38, 182);
+  fill(155, 38, 182);
+
+  for (let i = 0; i < BALLZ; i++) {
+    bouncyBalls.push(
+      constructSpeedyBouncyBall(
+        cV(i*100 * PHI, i*100 * PHI)
+      )
+    );
+  }
 }
 
 function draw() {
-  background(255);
-  
-  let bounds = bouncyBall.outOfBounds();
-
-  if (bounds & XAndOrY.X && bounds & XAndOrY.Y) {
-      console.log("XY");
-      bouncyBall.momentum.mult(-1, -1);  
-  } else if (bounds & XAndOrY.Y) {
-      bouncyBall.momentum.mult(1, -1);
-  } else if (bounds & XAndOrY.X) {
-      bouncyBall.momentum.mult(-1, 1);
+  background(0);
+  for (let i = 0; i < BALLZ; i++) {
+    let bouncyBall = bouncyBalls[i]; 
+    bouncyBall.reconstruct(99);
   }
-  
-  bouncyBall.advance();
-  circle(bouncyBall.domain.x, bouncyBall.domain.y, 99);
-  
 }
