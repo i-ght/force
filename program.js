@@ -58,10 +58,6 @@ class Force {
   }
 }
 
-function cV(x, y, z) {
-  return createVector(x, y, z);
-}
-
 let DIR_CHANGES; 
 
 class TwoDBouncyBall extends Force {
@@ -100,10 +96,10 @@ class TwoDBouncyBall extends Force {
 
 }
 
-const BALLZ = 2;
-const PHI = 1.618;
 
-let bouncyBalls = [];
+function cV(x, y, z) {
+  return createVector(x, y, z);
+}
 
 function constructSpeedyBouncyBall(domain) {
   const momentum =
@@ -118,6 +114,11 @@ function constructSpeedyBouncyBall(domain) {
       66.6
   );
 }
+
+const BALLZ = 2;
+const PHI = 1.618;
+let bouncyBalls = [];
+
 
 function setup() {
   DIR_CHANGES = 
